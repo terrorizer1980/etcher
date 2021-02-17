@@ -736,6 +736,9 @@ export class SourceSelector extends React.Component<
 						titleLabel="Select source"
 						emptyListLabel="Plug a source drive"
 						emptyListIcon={<SrcSvg width="40px" />}
+						onDriveSelect={(drive) =>
+							this.selectSource(drive, sourceDestination.BlockDevice)
+						}
 						cancel={() => {
 							this.setState({
 								showDriveSelector: false,

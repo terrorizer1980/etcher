@@ -140,6 +140,7 @@ export interface DriveSelectorProps
 	write: boolean;
 	multipleSelection: boolean;
 	showWarnings?: boolean;
+	onDriveSelect?: (drive: DrivelistDrive) => void;
 	cancel: () => void;
 	done: (drives: DrivelistDrive[]) => void;
 	titleLabel: string;
@@ -376,6 +377,15 @@ export class DriveSelector extends React.Component<
 		this.unsubscribe?.();
 	}
 
+	driveSelected(lastSelected: DrivelistDrive, newSelection?: DrivelistDrive[]) {
+		this.setState({
+			selectedList: newSelection || [lastSelected],
+		});
+		if (this.props.onDriveSelect !== undefined) {
+			this.props.onDriveSelect(lastSelected);
+		}
+	}
+
 	render() {
 		const { cancel, done, ...props } = this.props;
 		const { selectedList, drives, image, missingDriversModal } = this.state;
@@ -447,18 +457,20 @@ export class DriveSelector extends React.Component<
 							rowKey="displayName"
 							onCheck={(rows: Drive[]) => {
 								let newSelection = rows.filter(isDrivelistDrive);
+								const lastSelected = newSelection.slice(
+									newSelection.length - 1,
+								)[0];
+								if (this.props.onDriveSelect !== undefined) {
+									this.props.onDriveSelect(lastSelected);
+								}
 								if (this.props.multipleSelection) {
 									if (this.deselectingAll(newSelection)) {
 										newSelection = [];
 									}
-									this.setState({
-										selectedList: newSelection,
-									});
+									this.driveSelected(lastSelected, newSelection);
 									return;
 								}
-								this.setState({
-									selectedList: newSelection.slice(newSelection.length - 1),
-								});
+								this.driveSelected(lastSelected);
 							}}
 							onRowClick={(row: Drive) => {
 								if (
@@ -482,6 +494,9 @@ export class DriveSelector extends React.Component<
 								this.setState({
 									selectedList: newList,
 								});
+								if (this.props.onDriveSelect !== undefined) {
+									this.props.onDriveSelect(row);
+								}
 							}}
 						/>
 						{numberOfHiddenSystemDrives > 0 && (

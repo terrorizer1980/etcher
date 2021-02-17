@@ -65,6 +65,7 @@ export const TargetSelectorModal = (
 		showWarnings={true}
 		selectedList={getSelectedDrives()}
 		updateSelectedList={getSelectedDrives}
+		onDriveSelect={(drive) => selectDrive(drive.device)}
 		{...props}
 	/>
 );
@@ -164,7 +165,11 @@ export const TargetSelector = ({
 			{showTargetSelectorModal && (
 				<TargetSelectorModal
 					write={true}
-					cancel={() => setShowTargetSelectorModal(false)}
+					cancel={() => {
+						const originalTargets = targets;
+						selectAllTargets(originalTargets);
+						setShowTargetSelectorModal(false);
+					}}
 					done={(modalTargets) => {
 						selectAllTargets(modalTargets);
 						setShowTargetSelectorModal(false);
