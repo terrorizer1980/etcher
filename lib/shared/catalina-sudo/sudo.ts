@@ -37,7 +37,14 @@ export async function sudo(
 				env: {
 					PATH: env.PATH,
 					SUDO_ASKPASS: join(
-						(app || remote.app).getAppPath(),
+						(app || remote.app)
+							.getAppPath()
+							// With macOS universal builds, getAppPath() returns the path to an app.asar file containing an index.js file which will
+							// include the app-x64 or app-arm64 folder depending on the arch.
+							// We don't care about the app.asar file, we want the actual folder.
+							.replace(/\.asar$/, () =>
+								process.platform === 'darwin' ? '-' + process.arch : '',
+							),
 						__dirname,
 						'sudo-askpass.osascript.js',
 					),
